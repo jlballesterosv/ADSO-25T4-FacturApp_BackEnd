@@ -15,4 +15,4 @@ class Categories(Base):
         self.description = description
     
     def __repr__(self):
-        return f"<Category(id={self.id}, name='{self.name}', description='{self.description}')>"
+        return f"<Category(id={self.id}, name='{self.name}', description='{self.description}', active={self.active})>"
