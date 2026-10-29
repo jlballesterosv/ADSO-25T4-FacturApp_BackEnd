@@ -27,8 +27,18 @@ class Products(Base):
         products = session.query(Products).all()
         return products
     
+    def get_by_id(product_id):
+        product = session.query(Products).filter_by(id=product_id).first()
+        return product
+    
+    def get_by_name(name):
+        product = session.query(Products).filter_by(name=name).first()
+        return product
+    
     def save(self):
         session.add(self)
         session.commit()
-
+    
+    def update(self):
+        session.commit()
     
