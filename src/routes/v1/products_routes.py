@@ -1,19 +1,35 @@
 from flask import Blueprint, jsonify, request
 from src.models.products import Products
-products_bp = Blueprint('products', __name__)
+
+products_bp = Blueprint('products_v1', __name__, url_prefix='/api/v1')
 
 @products_bp.route('/products', methods=['GET'])
 def get_products():    
-    products = Products.get()
-    return jsonify([{
-        'id': product.id,
-        'name': product.name,
-        'description': product.description,
-        'price': product.price,
-        'stock': product.stock,
-        'category_id': product.category_id,
-        'active': product.active
-    } for product in products])
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=3, type=int)  # Set default per_page to 3
+    products, total_products = Products.get_paginated(page=page, per_page=per_page)
+    total_pages = (total_products + per_page - 1) // per_page  # Calculate total pages based on per_page=3
+    return jsonify({
+        'data':
+                [{
+                'id': product.id,
+                'name': product.name,
+                'description': product.description,
+                'price': product.price,
+                'stock': product.stock,
+                'category_id': product.category_id,
+                'active': product.active
+            } for product in products],
+            'meta': {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': total_pages,
+                'total_products': total_products,
+                'has_next': page < total_pages,
+                'has_prev': page > 1
+            }
+        }
+    ), 200
 
 @products_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product_by_id(product_id):
@@ -95,9 +111,7 @@ def put_products(product_id):
             errors['name'] = 'name must be unique'
 
     if name is not None:
-        product.name = name
-
-    
+        product.name = name   
 
     if description is not None:
         product.description = description

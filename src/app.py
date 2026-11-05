@@ -2,18 +2,22 @@ from flask import Flask
 from src.models import Base, engine
 from src.models.categories import Categories
 from src.models.products import Products
-from src.routes.products_routes import products_bp
+
+from src.routes import register_routes
 
 
 app = Flask(__name__)
 
-app.register_blueprint(products_bp)  # Register the products blueprint
+register_routes(app)  # Register the routes with the Flask app
 
 Base.metadata.create_all(engine)
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def health():
+    return {
+        'success': True,
+        'message': 'API is running'
+    }
 
 
 if __name__ == '__main__':
