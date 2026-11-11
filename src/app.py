@@ -10,7 +10,9 @@ app = Flask(__name__)
 
 register_routes(app)  # Register the routes with the Flask app
 
-app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to a secure key in production
+# HS256 needs a key of at least 32 characters (PyJWT warns with shorter keys).
+# Change this to a secure key in production
+app.config['JWT_SECRET_KEY'] = 'facturapp-adso-25t4-dev-secret-key-change-me'
 
 Base.metadata.create_all(engine)
 
