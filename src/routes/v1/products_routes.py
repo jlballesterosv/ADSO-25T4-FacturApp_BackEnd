@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from src.models.products import Products
+from src.utils.auth import token_required
 
 products_bp = Blueprint('products_v1', __name__, url_prefix='/api/v1')
 
@@ -49,6 +50,7 @@ def get_product_by_id(product_id):
                          'message': 'Product not found'}), 404
 
 @products_bp.route('/products', methods=['POST'])
+
 def post_products():
     data = request.get_json()
     name = data.get('name')

@@ -10,6 +10,8 @@ app = Flask(__name__)
 
 register_routes(app)  # Register the routes with the Flask app
 
+app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to a secure key in production
+
 Base.metadata.create_all(engine)
 
 @app.route('/')
