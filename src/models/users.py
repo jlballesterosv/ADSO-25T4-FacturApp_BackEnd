@@ -6,6 +6,11 @@ import enum
 class Role(str, enum.Enum):
     ADMIN = 'ADMIN'
     SELLER = 'SELLER'
+    # NCFC: PENDING is the role every new user gets when registering.
+    # NCFC: A PENDING user can log in, but every endpoint protected with
+    # NCFC: @role_required answers 403 until an ADMIN assigns a real role
+    # NCFC: with PUT /api/v1/users/<user_id>/role.
+    PENDING = 'PENDING'
 
 class Users(Base):
     __tablename__ = 'users'
@@ -14,10 +19,14 @@ class Users(Base):
     email = Column(String(255), unique=True, nullable=False)    
     password_hash = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False)
-    role = Column(String(50), nullable=False)  # e.g., 'admin', 'user'
+    role = Column(String(50), nullable=False)  # NCFC: one of the Role values: 'PENDING', 'SELLER' or 'ADMIN'
     active = Column(Integer, default=1)  # 1 for active, 0 for inactive
 
-    def __init__(self, email, password, name, role):
+    def __init__(self, email, password, name, role=Role.PENDING.value):
+        # NCFC: role is optional and defaults to 'PENDING', so a new user never
+        # NCFC: gets permissions by himself. Always store the text value
+        # NCFC: (Role.PENDING.value), not the enum: PyMySQL would save the enum
+        # NCFC: as the text 'Role.PENDING'.
         self.email = email
         self.password_hash = generate_password_hash(password)
         self.name = name

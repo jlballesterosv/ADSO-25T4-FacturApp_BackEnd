@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from src.models.users import Users
+from src.models.users import Users, Role  # NCFC: Role is used to create users as PENDING
 from src.utils.auth import generate_token
 
 
@@ -12,7 +12,8 @@ def register():
     email = data.get('email')
     password = data.get('password')
     name = data.get('name')
-    role = data.get('role', 'SELLER')
+    # NCFC: the role is no longer read from the request body. Before this change
+    # NCFC: anyone could register as ADMIN by sending "role": "ADMIN".
 
     if not email or not password or not name:
         return jsonify({'success': False, 'message': 'Email, password, and name are required'}), 400
@@ -24,7 +25,8 @@ def register():
     if existing_user:
         return jsonify({'success': False, 'message': 'Email already registered'}), 400
     
-    new_user = Users(email=email, password=password, name=name, role=role)
+    # NCFC: every new user starts as PENDING; an ADMIN assigns the real role later
+    new_user = Users(email=email, password=password, name=name, role=Role.PENDING.value)
     new_user.save()
 
     return jsonify({'success': True, 'message': 'User registered successfully'}), 201

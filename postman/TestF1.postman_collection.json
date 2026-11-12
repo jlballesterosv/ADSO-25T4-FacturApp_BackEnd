@@ -6,6 +6,103 @@
     },
     "item": [
         {
+            "name": "Auth",
+            "description": "NCFC: register and login. Login saves the token in the collection variable {{token}}, which every other request uses.",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "url": {
+                            "raw": "http://127.0.0.1:5000/api/v1/register",
+                            "protocol": "http",
+                            "host": [
+                                "127",
+                                "0",
+                                "0",
+                                "1"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "v1",
+                                "register"
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "description": "NCFC: creates a user with role PENDING. An ADMIN must assign a role with Users > Assign Role.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"email\": \"vendedor1@facturapp.com\",\r\n    \"password\": \"123456\",\r\n    \"name\": \"Vendedor Uno\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [],
+                    "protocolProfileBehavior": {}
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// NCFC: save the access_token in the collection variable \"token\"",
+                                    "const body = pm.response.json();",
+                                    "if (body.access_token) {",
+                                    "    pm.collectionVariables.set(\"token\", body.access_token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "url": {
+                            "raw": "http://127.0.0.1:5000/api/v1/login",
+                            "protocol": "http",
+                            "host": [
+                                "127",
+                                "0",
+                                "0",
+                                "1"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "v1",
+                                "login"
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "description": "NCFC: returns access_token; the test script saves it in the collection variable token.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"email\": \"admin@facturapp.com\",\r\n    \"password\": \"123456\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [],
+                    "protocolProfileBehavior": {}
+                }
+            ]
+        },
+        {
             "name": "Products",
             "event": [
                 {
@@ -77,9 +174,6 @@
                                     "language": "json"
                                 }
                             }
-                        },
-                        "auth": {
-                            "type": "noauth"
                         }
                     },
                     "response": [],
@@ -135,10 +229,7 @@
                             ]
                         },
                         "method": "GET",
-                        "header": [],
-                        "auth": {
-                            "type": "noauth"
-                        }
+                        "header": []
                     },
                     "response": [],
                     "protocolProfileBehavior": {}
@@ -184,10 +275,7 @@
                             ]
                         },
                         "method": "GET",
-                        "header": [],
-                        "auth": {
-                            "type": "noauth"
-                        }
+                        "header": []
                     },
                     "response": [],
                     "protocolProfileBehavior": {}
@@ -242,9 +330,49 @@
                                     "language": "json"
                                 }
                             }
+                        }
+                    },
+                    "response": [],
+                    "protocolProfileBehavior": {}
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "description": "NCFC: user management (only ADMIN).",
+            "item": [
+                {
+                    "name": "Assign Role",
+                    "request": {
+                        "url": {
+                            "raw": "http://127.0.0.1:5000/api/v1/users/2/role",
+                            "protocol": "http",
+                            "host": [
+                                "127",
+                                "0",
+                                "0",
+                                "1"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "v1",
+                                "users",
+                                "2",
+                                "role"
+                            ]
                         },
-                        "auth": {
-                            "type": "noauth"
+                        "method": "PUT",
+                        "header": [],
+                        "description": "NCFC: only ADMIN. Allowed roles: ADMIN, SELLER. Log in as ADMIN first.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"role\": \"SELLER\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
                         }
                     },
                     "response": [],
@@ -273,5 +401,21 @@
             }
         }
     ],
-    "variable": []
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        }
+    ]
 }

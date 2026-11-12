@@ -1,10 +1,13 @@
 from flask import Blueprint, jsonify, request
 from src.models.products import Products
-from src.utils.auth import token_required
+from src.models.users import Role  # NCFC: roles used by role_required
+from src.utils.auth import token_required, role_required  # NCFC: role_required added
 
 products_bp = Blueprint('products_v1', __name__, url_prefix='/api/v1')
 
 @products_bp.route('/products', methods=['GET'])
+@token_required  # NCFC: requires a valid token
+@role_required(Role.ADMIN, Role.SELLER)  # NCFC: ADMIN and SELLER can list products
 def get_products():    
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=3, type=int)  # Set default per_page to 3
@@ -33,6 +36,8 @@ def get_products():
     ), 200
 
 @products_bp.route('/products/<int:product_id>', methods=['GET'])
+@token_required  # NCFC: requires a valid token
+@role_required(Role.ADMIN, Role.SELLER)  # NCFC: ADMIN and SELLER can see a product
 def get_product_by_id(product_id):
     product = Products.get_by_id(product_id)
     if product:
@@ -50,7 +55,8 @@ def get_product_by_id(product_id):
                          'message': 'Product not found'}), 404
 
 @products_bp.route('/products', methods=['POST'])
-
+@token_required  # NCFC: requires a valid token
+@role_required(Role.ADMIN)  # NCFC: only ADMIN can create products
 def post_products():
     data = request.get_json()
     name = data.get('name')
@@ -94,6 +100,8 @@ def post_products():
     }), 201
 
 @products_bp.route('/products/<int:product_id>', methods=['PUT'])
+@token_required  # NCFC: requires a valid token
+@role_required(Role.ADMIN)  # NCFC: only ADMIN can update products
 def put_products(product_id):
     product = Products.get_by_id(product_id)
     if not product:
